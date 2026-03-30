@@ -1,27 +1,30 @@
 pipeline {
     agent any
+
     stages {
-        stage('Docker Pull') {
+
+        stage('Clone Repository') {
             steps {
-                // Must use 'sh' for Linux Jenkins
-                sh 'docker pull nginx:latest'
+                git 'https://github.com/your-username/your-repository.git'
             }
         }
-        stage('Docker Run') {
+
+        stage('Pull Docker Image') {
             steps {
-                script {
-                    // This stops any old container so the build doesn't fail
-                    sh 'docker rm -f my-web-container || true'
-                    sh 'docker run -d --name my-web-container -p 8082:80 nginx:latest'
-                }
+                sh 'docker pull nginx'
             }
         }
-    }
-    post {
-        success {
-            echo '======================================'
-            echo '      PIPELINE SUCCESSFUL!           '
-            echo '======================================'
+
+        stage('Build Container') {
+            steps {
+                sh 'docker build -t myapp .'
+            }
+        }
+
+        stage('Run Container') {
+            steps {
+                sh 'docker run -d -p 8081:80 --name mycontainer myapp'
+            }
         }
     }
 }
