@@ -1,28 +1,27 @@
 pipeline {
     agent any
     stages {
-        stage('Pull Docker Image') {
+        stage('Docker Pull') {
             steps {
-                // Use 'sh' because your Jenkins is running in a Linux environment
-                sh 'docker pull nginx'
+                // Must use 'sh' for Linux Jenkins
+                sh 'docker pull nginx:latest'
             }
         }
-        stage('Run Container') {
+        stage('Docker Run') {
             steps {
                 script {
-                    // This stops any old version so the new one can start
-                    // The '|| true' ensures it doesn't fail if the container doesn't exist
-                    sh 'docker rm -f my-web-app || true'
-                    sh 'docker run -d --name my-web-app -p 8082:80 nginx'
+                    // This stops any old container so the build doesn't fail
+                    sh 'docker rm -f my-web-container || true'
+                    sh 'docker run -d --name my-web-container -p 8082:80 nginx:latest'
                 }
             }
         }
     }
     post {
         success {
-            echo '--------------------------------------'
-            echo 'PIPELINE SUCCESSFUL!'
-            echo '--------------------------------------'
+            echo '======================================'
+            echo '      PIPELINE SUCCESSFUL!           '
+            echo '======================================'
         }
     }
 }
